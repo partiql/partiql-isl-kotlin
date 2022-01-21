@@ -1,9 +1,13 @@
 ## PartiQL ISL Kotlin
 
 PartiQL ISL Kotlin provides an in-memory [Ion Schema Language](https://amzn.github.io/ion-schema/docs/spec.html) (ISL) object
-model. The implementation uses [partiql-ir-generator](https://github.com/partiql/partiql-ir-generator) (PIG), a domain modeling
-and code generating tool for tree-like data structures, to generate class definitions and APIs for creating/manipulating 
+model. The open-source Kotlin implementation of ISL, [ion-schema-kotlin](https://github.com/amzn/ion-schema-kotlin) allows
+for validation of schemas, but does not provide ways for programmatic manipulation of ISL schemas. The implementation 
+uses [partiql-ir-generator](https://github.com/partiql/partiql-ir-generator) (PIG), a domain modeling and code generating 
+tool for tree-like data structures, to generate class definitions and APIs for creating/manipulating 
 ISL entities. PIG also provides visitors, tree walkers, visitor transforms, as well as (de)serialization code to and from Ion.
+Some possible use cases for this API could include rewriting schemas through visitor transforms, unifying/merging 
+multiple schemas, and inferring schemas.
 
 ## Using PIG ISL Domain and Parser
 
@@ -77,7 +81,7 @@ $./gradlew build
 ```
 
 This will use PIG to generate the object model file, which can be found at `src/org/partiql/ionschema/model/isl-model.kt`.
-Also run are the ISL parser's unit tests.
+The command will also run the ISL parser's unit tests.
 
 ## Security
 

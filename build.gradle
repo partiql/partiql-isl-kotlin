@@ -20,13 +20,27 @@ repositories {
     jcenter()
 }
 
-
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
 
+java {
+    sourceSets {
+        main.java.srcDirs = ["src"]
+        main.resources.srcDirs = ["resources"]
+        test.java.srcDirs = ["test"]
+        test.resources.srcDirs = ["test-resources"]
+    }
+}
+
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs = ["src", "src/org/partiql/ionschema/build/generated-src/pig/"]
+        test.kotlin.srcDirs = ["test"]
+    }
+}
 
 dependencies {
     api 'com.amazon.ion:ion-java:1.8.0'
@@ -37,7 +51,6 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testImplementation 'pl.pragmatists:JUnitParams:1.1.0'
-    testImplementation 'org.assertj:assertj-core:3.12.0'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
@@ -66,16 +79,6 @@ task javadocJar(type: Jar) {
     archiveClassifier.set("javadoc")
 }
 
-java {
-    sourceSets {
-        main.java.srcDirs = ["src"]
-        main.resources.srcDirs = ["resources"]
-        test.java.srcDirs = ["test"]
-        test.resources.srcDirs = ["test-resources"]
-    }
-}
-
-
 jacocoTestReport {
     // Adjust the output of the test report
     reports {
@@ -88,14 +91,6 @@ tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
 }
 
-
-plugins.withId('org.jetbrains.kotlin.jvm', { _ ->
-    sourceSets {
-        main.kotlin.srcDirs = ["src"]
-        test.kotlin.srcDirs = ["test"]
-    }
-})
-
 import org.partiql.pig.cmdline.Command
 import org.partiql.pig.cmdline.TargetLanguage
 import org.partiql.pig.errors.PigException
@@ -106,8 +101,10 @@ task generatePigDomains {
     // TODO: in the future, utilize the API created as part of this ticket:
     // https://github.com/partiql/partiql-ir-generator/issues/5
 
+    project.file("${projectDir}/src/org/partiql/ionschema/build/generated-src/pig/").mkdirs()
+
     def typeUniverse = new File(projectDir, "src/org/partiql/ionschema/model/isl.ion")
-    def outputFile = new File(projectDir, "src/org/partiql/ionschema/model/isl-model.kt")
+    def outputFile = new File(projectDir, "src/org/partiql/ionschema/build/generated-src/pig/isl-model.kt")
     def targetLanguage = new TargetLanguage.Kotlin("org.partiql.ionschema.model")
     def cmd = new Command.Generate(typeUniverse, outputFile, targetLanguage)
 
@@ -140,7 +137,7 @@ publishing {
                 name = "PartiQL ISL Kotlin"
                 packaging = "jar"
                 url = "https://github.com/partiql/partiql-isl-kotlin"
-                description = "A Kotlin implementation of an Ion Schema Language (ISL) in-memory object model"
+                description = "An object model that allows for programmatic manipulation of Ion Schema Language schemas."
                 scm {
                     connection = "scm:git@github.com:partiql/partiql-isl-kotlin.git"
                     developerConnection = "scm:git@github.com:partiql/partiql-isl-kotlin.git"
