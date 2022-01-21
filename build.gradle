@@ -50,7 +50,6 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-    testImplementation 'pl.pragmatists:JUnitParams:1.1.0'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
@@ -151,8 +150,8 @@ publishing {
                 }
                 developers {
                     developer {
-                        name = "Amazon Ion Team"
-                        email = "ion-team@amazon.com"
+                        name = "PartiQL Team"
+                        email = "partiql-team@amazon.com"
                         organization = "PartiQL"
                         organizationUrl = "https://github.com/partiql"
                     }
