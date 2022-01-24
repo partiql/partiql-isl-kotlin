@@ -5,7 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.0'
     id 'maven-publish'
     id 'signing'
-    id 'org.jetbrains.dokka' version '0.9.18'
+    id 'org.jetbrains.dokka' version '1.4.30'
     id 'jacoco'
 }
 
@@ -63,9 +63,8 @@ test {
     }
 }
 
-dokka {
-    outputFormat = "html"
-    outputDirectory = "$buildDir/javadoc"
+tasks.dokkaHtml.configure {
+    outputDirectory.set(file("$buildDir/javadoc"))
 }
 
 task sourcesJar(type: Jar) {
@@ -74,7 +73,7 @@ task sourcesJar(type: Jar) {
 }
 
 task javadocJar(type: Jar) {
-    from dokka
+    from dokkaHtml
     archiveClassifier.set("javadoc")
 }
 
