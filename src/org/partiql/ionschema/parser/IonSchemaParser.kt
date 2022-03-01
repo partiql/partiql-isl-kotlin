@@ -7,10 +7,10 @@ import com.amazon.ionelement.api.ListElement
 import com.amazon.ionelement.api.StringElement
 import com.amazon.ionelement.api.StructElement
 import com.amazon.ionelement.api.SymbolElement
+import com.amazon.ionelement.api.TimestampElement
 import com.amazon.ionelement.api.ionBool
 import com.amazon.ionelement.api.ionSymbol
 import com.amazon.ionelement.api.withoutAnnotations
-import com.amazon.ionelement.api.TimestampElement
 import org.partiql.ionschema.model.IonSchemaModel
 import org.partiql.pig.runtime.SymbolPrimitive
 
@@ -76,7 +76,8 @@ fun parseSchema(elements: List<AnyElement>): IonSchemaModel.Schema =
             if (hasHeader && !hasFooter) {
                 parseError(
                     elements.first { it.annotations.contains("schema_header") },
-                    Error.HeaderPresentButNoFooter)
+                    Error.HeaderPresentButNoFooter
+                )
             }
 
             schema(stmts).also { validateSchemaModel(it) }
@@ -84,7 +85,8 @@ fun parseSchema(elements: List<AnyElement>): IonSchemaModel.Schema =
     } catch (ex: IonElementConstraintException) {
         parseError(
             ex.location,
-            Error.IonElementConstraintException(ex.message ?: "<exception message was null>"))
+            Error.IonElementConstraintException(ex.message ?: "<exception message was null>")
+        )
     }
 
 private fun parseHeader(elem: StructElement): IonSchemaModel.SchemaStatement.HeaderStatement {
@@ -95,7 +97,8 @@ private fun parseHeader(elem: StructElement): IonSchemaModel.SchemaStatement.Hea
         IonSchemaModel.build {
             headerStatement(
                 imports = importList,
-                openContent = openFieldList(openFields))
+                openContent = openFieldList(openFields)
+            )
         }
     }
 }
@@ -107,7 +110,7 @@ private fun parseImportList(listElem: ListElement): IonSchemaModel.ImportList {
             val type = extractOptional("type") { it.symbolValue }
             val asAlias = extractOptional("as") { it.symbolValue }
 
-            if(asAlias != null && type == null) {
+            if (asAlias != null && type == null) {
                 parseError(listItem, Error.ImportMissingTypeFieldWhenAsSpecified)
             }
 
@@ -128,7 +131,7 @@ private fun constraintParselet(name: String, block: ConstraintParselet): Pair<St
 
 private val constraintParselets = mapOf(
     constraintParselet("content") { it: AnyElement ->
-        if(it.symbolValue != "closed") {
+        if (it.symbolValue != "closed") {
             parseError(it, Error.ValueOfClosedFieldNotContentSymbol(it))
         }
         closedContent()
@@ -189,7 +192,8 @@ private val constraintParselets = mapOf(
                     occursRule(parseNumberRule(it))
                 }
                 else -> parseError(it, Error.InvalidOccursSpec(it))
-            })
+            }
+        )
     },
     constraintParselet("valid_values") { it ->
         validValues(
@@ -261,16 +265,17 @@ internal fun parseAnnotations(value: AnyElement): IonSchemaModel.Constraint.Anno
         IonSchemaModel.build {
             annotation(
                 it.textValue,
-                when(anno) {
+                when (anno) {
                     "required" -> IonSchemaModel.build { required() }
                     "optional" -> IonSchemaModel.build { optional() }
                     null -> null
                     else -> parseError(it, Error.AnnotationNotAllowedHere(anno))
-                })
+                }
+            )
         }
     }
 
-    return IonSchemaModel.build{ annotations(isOrdered, annotationList(annos), optionality) }
+    return IonSchemaModel.build { annotations(isOrdered, annotationList(annos), optionality) }
 }
 
 internal fun parseTimestampPrecision(tsp: AnyElement): IonSchemaModel.TsPrecision = IonSchemaModel.build {
@@ -282,9 +287,9 @@ internal fun parseTimestampPrecision(tsp: AnyElement): IonSchemaModel.TsPrecisio
 
 internal fun parseValuesRange(valuesRange: AnyElement): IonSchemaModel.ValuesRange {
     val listElem = valuesRange
-            .requireSingleAnnotation("range")
-            .asList()
-            .requireSize(2)
+        .requireSingleAnnotation("range")
+        .asList()
+        .requireSize(2)
 
     val fromElem = listElem.values[0]
     val toElem = listElem.values[1]
@@ -298,20 +303,21 @@ internal fun parseValuesRange(valuesRange: AnyElement): IonSchemaModel.ValuesRan
 
 internal fun parseTimestampValuesRange(tsValueRange: AnyElement): IonSchemaModel.ValuesRange.TimestampRange {
     val listElem = tsValueRange
-            .requireSingleAnnotation("range")
-            .asList()
-            .requireSize(2)
+        .requireSingleAnnotation("range")
+        .asList()
+        .requireSize(2)
 
     val fromElem = listElem.values[0]
     val toElem = listElem.values[1]
 
     return IonSchemaModel.build {
-            timestampRange(
-                tsValueRange(
-                    parseTimestampValuesExtent(fromElem),
-                    parseTimestampValuesExtent(toElem))
+        timestampRange(
+            tsValueRange(
+                parseTimestampValuesExtent(fromElem),
+                parseTimestampValuesExtent(toElem)
             )
-        }
+        )
+    }
 }
 
 internal fun parseTimestampValuesExtent(elem: AnyElement) =
@@ -321,7 +327,7 @@ internal fun parseTimestampValuesExtent(elem: AnyElement) =
             MAX -> IonSchemaModel.build { maxTsValue() }
             else -> parseError(elem, Error.InvalidTimestampExtent)
         }
-        is TimestampElement -> if(elem.allowSingleAnnotation("exclusive")) {
+        is TimestampElement -> if (elem.allowSingleAnnotation("exclusive")) {
             IonSchemaModel.build { exclusiveTsValue(elem.withoutAnnotations()) }
         } else {
             IonSchemaModel.build { inclusiveTsValue(elem) }
@@ -333,8 +339,8 @@ internal fun parseTimestampValuesExtent(elem: AnyElement) =
 
 internal fun parseTsPrecisionRange(tspRange: AnyElement): IonSchemaModel.TsPrecisionRange {
     val tspRangeList = tspRange
-            .asList()
-            .requireSize(2)
+        .asList()
+        .requireSize(2)
 
     return IonSchemaModel.build { tsPrecisionRange(min = parseTsPrecisionExtent(tspRangeList.values[0]), max = parseTsPrecisionExtent(tspRangeList.values[1])) }
 }
@@ -368,10 +374,10 @@ internal fun parseTsPrecisionValue(precision: AnyElement): IonSchemaModel.TsPrec
 
 internal fun parseTimestampOffset(offset: AnyElement): List<String> {
     return offset
-            .requireZeroAnnotations()
-            .asList()
-            .requireNonzeroListSize()
-            .values.map { parseTimestampOffsetPattern(it.asString()) }
+        .requireZeroAnnotations()
+        .asList()
+        .requireNonzeroListSize()
+        .values.map { parseTimestampOffsetPattern(it.asString()) }
 }
 
 internal fun parseTimestampOffsetPattern(offsetPattern: StringElement): String {
@@ -391,16 +397,16 @@ internal fun parseTimestampOffsetPattern(offsetPattern: StringElement): String {
 }
 
 private fun parseRegexConstraint(regex: StringElement): IonSchemaModel.Constraint {
-    if(regex.annotations.size !in 0..2) {
+    if (regex.annotations.size !in 0..2) {
         parseError(regex, Error.UnexpectedAnnotationCount(0..2, regex.annotations.size))
     }
 
     val invalidAnno = regex.annotations.firstOrNull() { it != "i" && it != "m" }
-    if(invalidAnno != null) {
+    if (invalidAnno != null) {
         parseError(regex, Error.UnexpectedAnnotation(invalidAnno))
     }
 
-    if(regex.annotations.size == 2 && regex.annotations[0] == "m") {
+    if (regex.annotations.size == 2 && regex.annotations[0] == "m") {
         parseError(regex, Error.IncorrectRegexPropertyOrder)
     }
 
@@ -421,7 +427,7 @@ private fun parseRegexConstraint(regex: StringElement): IonSchemaModel.Constrain
  * @throws [IonSchemaParseException] if [isInline] is false and the "type" annotation is not included in [struct]
  */
 fun parseTypeDefinition(struct: StructElement, isInline: Boolean): IonSchemaModel.TypeDefinition {
-    if(!isInline) {
+    if (!isInline) {
         struct.requireSingleAnnotation("type")
     }
 
@@ -443,7 +449,8 @@ fun parseTypeDefinition(struct: StructElement, isInline: Boolean): IonSchemaMode
 
             typeDefinition_(
                 name = typeName?.toSymbolPrimitive(),
-                constraints = constraintList(constraints))
+                constraints = constraintList(constraints)
+            )
         }
     }
 }
@@ -480,15 +487,16 @@ internal fun parseImportedType(elem: StructElement): IonSchemaModel.TypeReferenc
 
     return IonSchemaModel.build {
         importedType(
-                id = elem["id"].textValue,
-                type = elem["type"].textValue,
-                nullable = if (elem.annotations.contains("nullable")) ionBool(true) else ionBool(false),
-                alias = elem.getOptional("as")?.textValue)
+            id = elem["id"].textValue,
+            type = elem["type"].textValue,
+            nullable = if (elem.annotations.contains("nullable")) ionBool(true) else ionBool(false),
+            alias = elem.getOptional("as")?.textValue
+        )
     }
 }
 
 internal fun parseNumberRule(elem: AnyElement): IonSchemaModel.NumberRule =
-    if(elem.isNumber) {
+    if (elem.isNumber) {
         elem.requireZeroAnnotations()
         IonSchemaModel.build {
             equalsNumber(elem)
@@ -524,7 +532,7 @@ private fun parseNumberExtent(elem: IonElement): IonSchemaModel.NumberExtent = I
                 else -> parseError(elem, Error.InvalidNumericExtent)
             }
         elem.isNumber ->
-            if(elem.allowSingleAnnotation("exclusive")) {
+            if (elem.allowSingleAnnotation("exclusive")) {
                 exclusive(elem.withoutAnnotations())
             } else {
                 inclusive(elem)

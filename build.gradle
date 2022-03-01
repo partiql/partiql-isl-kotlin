@@ -7,6 +7,7 @@ plugins {
     id 'signing'
     id 'org.jetbrains.dokka' version '1.4.30'
     id 'jacoco'
+    id 'org.jlleitschuh.gradle.ktlint' version '10.2.1'
 }
 
 group = "org.partiql"
@@ -93,6 +94,8 @@ import org.partiql.pig.cmdline.Command
 import org.partiql.pig.cmdline.TargetLanguage
 import org.partiql.pig.errors.PigException
 
+def islDomainFile = 'isl-model.kt'
+
 task generatePigDomains {
     group = "code generation"
 
@@ -102,7 +105,7 @@ task generatePigDomains {
     project.file("${projectDir}/src/org/partiql/ionschema/build/generated-src/pig/").mkdirs()
 
     def typeUniverse = new File(projectDir, "src/org/partiql/ionschema/model/isl.ion")
-    def outputFile = new File(projectDir, "src/org/partiql/ionschema/build/generated-src/pig/isl-model.kt")
+    def outputFile = new File(projectDir, "src/org/partiql/ionschema/build/generated-src/pig/$islDomainFile")
     def targetLanguage = new TargetLanguage.Kotlin("org.partiql.ionschema.model")
     def cmd = new Command.Generate(typeUniverse, outputFile, targetLanguage)
 
@@ -121,6 +124,12 @@ task generatePigDomains {
 }
 
 compileKotlin.dependsOn generatePigDomains
+
+ktlint {
+    filter {
+        exclude("**/$islDomainFile")
+    }
+}
 
 publishing {
     publications {

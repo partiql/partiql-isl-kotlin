@@ -22,20 +22,23 @@ private val MIN = ionSymbol("min")
  */
 fun IonSchemaModel.Schema.toIsl(): List<AnyElement> =
     this.statements.map { stmt ->
-        when(stmt) {
+        when (stmt) {
             is IonSchemaModel.SchemaStatement.HeaderStatement -> {
                 val fields = listOfNotNull(
                     stmt.imports?.let { imports ->
                         field("imports", ionListOf(imports.items.map { i -> i.toIsl() }))
                     },
-                    *stmt.openContent.toStructFields().toTypedArray())
+                    *stmt.openContent.toStructFields().toTypedArray()
+                )
 
                 ionStructOf(fields, annotations = listOf("schema_header")).asAnyElement()
             }
             is IonSchemaModel.SchemaStatement.FooterStatement ->
-                ionStructOf(stmt.openContent.toStructFields(),
-                    annotations = listOf("schema_footer"))
-                        .asAnyElement()
+                ionStructOf(
+                    stmt.openContent.toStructFields(),
+                    annotations = listOf("schema_footer")
+                )
+                    .asAnyElement()
             is IonSchemaModel.SchemaStatement.TypeStatement -> stmt.typeDef.toIsl(isInline = false).asAnyElement()
             is IonSchemaModel.SchemaStatement.ContentStatement -> stmt.value
         }
@@ -49,7 +52,6 @@ private fun IonSchemaModel.Import.toIsl(): AnyElement =
             this.alias?.let { field("as", ionSymbol(it.text)) }
         )
     ).asAnyElement()
-
 
 private fun IonSchemaModel.OpenFieldList.toStructFields(): List<StructField> =
     this.contents.map { field(it.name.text, it.value) }
@@ -68,7 +70,7 @@ fun IonSchemaModel.TypeDefinition.toIsl(isInline: Boolean): StructElement {
     val nameField = name?.let { listOf(field("name", ionSymbol(it))) } ?: listOf()
     val typeStruct = ionStructOf(nameField + this.constraints.items.map { it.toIsl() })
 
-    return if(!isInline) {
+    return if (!isInline) {
         typeStruct.withAnnotations("type")
     } else {
         typeStruct
@@ -76,7 +78,7 @@ fun IonSchemaModel.TypeDefinition.toIsl(isInline: Boolean): StructElement {
 }
 
 private fun IonSchemaModel.Constraint.toIsl(): StructField {
-    return when(this) {
+    return when (this) {
         is IonSchemaModel.Constraint.CodepointLength -> field("codepoint_length", this.rule.toIsl())
         is IonSchemaModel.Constraint.ByteLength -> field("byte_length", this.rule.toIsl())
         is IonSchemaModel.Constraint.ContainerLength -> field("container_length", this.rule.toIsl())
@@ -104,13 +106,13 @@ private fun IonSchemaModel.Constraint.toIsl(): StructField {
 }
 
 private fun IonSchemaModel.TsPrecision.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.TsPrecision.EqualsTsPrecisionRange -> this.toIsl()
         is IonSchemaModel.TsPrecision.EqualsTsPrecisionValue -> this.value.toIsl()
     }
 
 private fun IonSchemaModel.TsPrecision.EqualsTsPrecisionRange.toIsl(): IonElement =
-        ionListOf(this.range.min.toIsl(), this.range.max.toIsl(), annotations = listOf("range"))
+    ionListOf(this.range.min.toIsl(), this.range.max.toIsl(), annotations = listOf("range"))
 
 private fun IonSchemaModel.TsPrecisionExtent.toIsl(): IonElement =
     when (this) {
@@ -121,7 +123,7 @@ private fun IonSchemaModel.TsPrecisionExtent.toIsl(): IonElement =
     }
 
 private fun IonSchemaModel.TsPrecisionValue.toIsl(annotations: List<String> = emptyList()) =
-    when(this) {
+    when (this) {
         is IonSchemaModel.TsPrecisionValue.Year -> ionSymbol("year", annotations)
         is IonSchemaModel.TsPrecisionValue.Month -> ionSymbol("month", annotations)
         is IonSchemaModel.TsPrecisionValue.Day -> ionSymbol("day", annotations)
@@ -136,10 +138,13 @@ private fun List<IonSchemaModel.TypeReference>.toIsl(): IonElement =
     ionListOf(this.map { it.toIsl() })
 
 private fun IonSchemaModel.Constraint.Regex.toIsl() =
-    ionString(this.pattern.text,
+    ionString(
+        this.pattern.text,
         annotations = listOfNotNull(
-        "i".takeIf { this.caseInsensitive.booleanValue },
-        "m".takeIf { this.multiline.booleanValue }))
+            "i".takeIf { this.caseInsensitive.booleanValue },
+            "m".takeIf { this.multiline.booleanValue }
+        )
+    )
 
 private fun IonSchemaModel.Constraint.Annotations.toIsl(): IonElement {
     val optionality = when (this.defaultOptionality) {
@@ -165,13 +170,13 @@ private fun IonSchemaModel.Annotation.toIsl(): IonElement {
 }
 
 private fun IonSchemaModel.ValidValuesSpec.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.ValidValuesSpec.OneOfValidValues -> ionListOf(this.values)
         is IonSchemaModel.ValidValuesSpec.RangeOfValidValues -> this.range.toIsl()
     }
 
 private fun IonSchemaModel.OccursSpec.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.OccursSpec.OccursRule -> this.rule.toIsl()
         is IonSchemaModel.OccursSpec.OccursOptional -> ionSymbol("optional")
         is IonSchemaModel.OccursSpec.OccursRequired -> ionSymbol("required")
@@ -204,7 +209,7 @@ private fun IonSchemaModel.TsValueRange.toIsl(): IonElement =
     ionListOf(this.min.toIsl(), this.max.toIsl(), annotations = listOf("range"))
 
 private fun IonSchemaModel.TsValueExtent.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.TsValueExtent.MinTsValue -> MIN
         is IonSchemaModel.TsValueExtent.MaxTsValue -> MAX
         is IonSchemaModel.TsValueExtent.InclusiveTsValue -> this.value
@@ -225,7 +230,7 @@ private fun IonSchemaModel.TypeReference.ImportedType.toIsl(): IonElement {
 }
 
 private fun IonSchemaModel.NumberRule.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.NumberRule.EqualsNumber -> value
         is IonSchemaModel.NumberRule.EqualsRange -> this.range.toIsl()
     }
@@ -234,7 +239,7 @@ private fun IonSchemaModel.NumberRange.toIsl(): IonElement =
     ionListOf(this.min.toIsl(), this.max.toIsl(), annotations = listOf("range"))
 
 private fun IonSchemaModel.NumberExtent.toIsl(): IonElement =
-    when(this) {
+    when (this) {
         is IonSchemaModel.NumberExtent.Min -> MIN
         is IonSchemaModel.NumberExtent.Max -> MAX
         is IonSchemaModel.NumberExtent.Inclusive -> this.value

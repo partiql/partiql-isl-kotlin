@@ -3,10 +3,10 @@ package org.partiql.ionschema.parser
 import com.amazon.ionelement.api.ContainerElement
 import com.amazon.ionelement.api.IonElement
 
-internal fun <T: IonElement> T.requireSingleAnnotation(anno: String): T {
+internal fun <T : IonElement> T.requireSingleAnnotation(anno: String): T {
     when (this.annotations.size) {
         1 -> {
-            if(this.annotations[0] != anno) {
+            if (this.annotations[0] != anno) {
                 parseError(this, Error.UnexpectedAnnotation(this.annotations[0]))
             }
         }
@@ -15,19 +15,19 @@ internal fun <T: IonElement> T.requireSingleAnnotation(anno: String): T {
     return this
 }
 
-internal fun <T: IonElement> T.requireZeroAnnotations(): T {
-    if(this.annotations.any()) {
+internal fun <T : IonElement> T.requireZeroAnnotations(): T {
+    if (this.annotations.any()) {
         parseError(this, Error.UnexpectedAnnotationCount(0..0, this.annotations.size))
     }
     return this
 }
 
-internal fun <T: IonElement> T.allowSingleAnnotation(anno: String): Boolean =
+internal fun <T : IonElement> T.allowSingleAnnotation(anno: String): Boolean =
     when (this.annotations.size) {
-        0 ->  false
+        0 -> false
         1 -> {
             val foundAnno = this.annotations[0]
-            if(foundAnno != anno) {
+            if (foundAnno != anno) {
                 parseError(this, Error.AnnotationNotAllowedHere(foundAnno))
             }
             true
@@ -35,12 +35,12 @@ internal fun <T: IonElement> T.allowSingleAnnotation(anno: String): Boolean =
         else -> parseError(this, Error.UnexpectedAnnotationCount(0..1, this.annotations.size))
     }
 
-internal fun <T: IonElement> T.allowSingleAnnotation(validAnnos: Set<String>): Boolean =
+internal fun <T : IonElement> T.allowSingleAnnotation(validAnnos: Set<String>): Boolean =
     when (this.annotations.size) {
-        0 ->  false
+        0 -> false
         1 -> {
             val foundAnno = this.annotations[0]
-            if(foundAnno !in validAnnos) {
+            if (foundAnno !in validAnnos) {
                 parseError(this, Error.AnnotationNotAllowedHere(foundAnno))
             }
             true
@@ -48,11 +48,11 @@ internal fun <T: IonElement> T.allowSingleAnnotation(validAnnos: Set<String>): B
         else -> parseError(this, Error.UnexpectedAnnotationCount(0..1, this.annotations.size))
     }
 
-internal fun <T: IonElement> T.allowAnnotations(validAnnos: Set<String>): T =
+internal fun <T : IonElement> T.allowAnnotations(validAnnos: Set<String>): T =
     when (this.annotations.size) {
         in 0..validAnnos.size -> {
             this.annotations.forEach {
-                if(it !in validAnnos) {
+                if (it !in validAnnos) {
                     parseError(this, Error.AnnotationNotAllowedHere(it))
                 }
             }
@@ -61,7 +61,7 @@ internal fun <T: IonElement> T.allowAnnotations(validAnnos: Set<String>): T =
         else -> parseError(this, Error.UnexpectedAnnotationCount(0..1, this.annotations.size))
     }
 
-internal fun <T: IonElement> T.requireUniqueAnnotations(): T {
+internal fun <T : IonElement> T.requireUniqueAnnotations(): T {
     this.annotations
         .groupBy { it }.entries
         .firstOrNull { it.value.size > 1 }
@@ -70,14 +70,14 @@ internal fun <T: IonElement> T.requireUniqueAnnotations(): T {
         }
     return this
 }
-internal fun <T: ContainerElement> T.requireSize(s: Int): T {
+internal fun <T : ContainerElement> T.requireSize(s: Int): T {
     if (this.size != s) {
         parseError(this, Error.UnexpectedListSize(s..s, this.size))
     }
     return this
 }
 
-internal fun <T: ContainerElement> T.requireNonzeroListSize(): T {
+internal fun <T : ContainerElement> T.requireNonzeroListSize(): T {
     if (this.size == 0) {
         parseError(this, Error.EmptyListNotAllowedHere)
     }

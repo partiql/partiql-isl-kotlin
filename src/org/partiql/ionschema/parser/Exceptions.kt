@@ -6,8 +6,8 @@ import com.amazon.ionelement.api.IonLocation
 import com.amazon.ionelement.api.location
 import com.amazon.ionschema.IonSchemaException
 
-class IonSchemaParseException(val location: IonLocation?, val error: Error)
-    : IonSchemaException(getMessage(location, error.message))
+class IonSchemaParseException(val location: IonLocation?, val error: Error) :
+    IonSchemaException(getMessage(location, error.message))
 
 private fun getMessage(blame: IonLocation?, message: String): String {
     val location = blame ?: "<unknown location>"
@@ -40,5 +40,5 @@ internal fun modelValidationError(
     throw IonSchemaModelValidationError(ModelValidationError(component, actualType, expectedTypes))
 }
 
-class IonSchemaModelValidationError(val error: ModelValidationError)
-    : IonSchemaException(error.makeMessage())
+class IonSchemaModelValidationError(val error: ModelValidationError) :
+    IonSchemaException(error.makeMessage())

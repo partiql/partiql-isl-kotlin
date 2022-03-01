@@ -8,10 +8,10 @@ import com.amazon.ionelement.api.ionSymbol
 import com.amazon.ionelement.api.ionTimestamp
 import com.amazon.ionelement.api.loadAllElements
 import com.amazon.ionelement.api.loadSingleElement
-import org.partiql.ionschema.model.IonSchemaModel
-import org.partiql.ionschema.model.toIsl
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
+import org.partiql.ionschema.model.IonSchemaModel
+import org.partiql.ionschema.model.toIsl
 import org.partiql.ionschema.util.ArgumentsProviderBase
 import kotlin.test.assertEquals
 
@@ -36,7 +36,6 @@ TODO: based on a comment from Therapon, the names should actually be *required* 
     - timestamp_offset
  - inline imports
  */
-
 
 class ParseTypeTestCase(
     val input: String,
@@ -70,7 +69,8 @@ class ConstraintTestCase(
         // Load the specified schema into an IonElement, which is required by `parseTypeDefinition`
         val structElem = loadSingleElement(
             "type::{ $constraintInput }",
-            IonElementLoaderOptions(includeLocationMeta = true)).asStruct()
+            IonElementLoaderOptions(includeLocationMeta = true)
+        ).asStruct()
 
         // Parse the IonElement
         val typeModel = parseTypeDefinition(structElem, isInline = false)
@@ -192,11 +192,16 @@ class IonSchemaParserTests {
             },
             // valid_values - timestamp range
             ConstraintTestCase("valid_values: range::[2000-10-07T00:00:00Z, 2020-10-07T00:00:00Z]") {
-                validValues(rangeOfValidValues(
+                validValues(
+                    rangeOfValidValues(
                         timestampRange(
-                                tsValueRange(
-                                        inclusiveTsValue(ionTimestamp("2000-10-07T00:00:00Z")),
-                                        inclusiveTsValue(ionTimestamp("2020-10-07T00:00:00Z"))))))
+                            tsValueRange(
+                                inclusiveTsValue(ionTimestamp("2000-10-07T00:00:00Z")),
+                                inclusiveTsValue(ionTimestamp("2020-10-07T00:00:00Z"))
+                            )
+                        )
+                    )
+                )
             },
             // regex
             ConstraintTestCase("regex: \"doesntmatter\"") {
@@ -224,8 +229,12 @@ class IonSchemaParserTests {
                     inlineType(
                         typeDefinition(
                             constraints = constraintList(
-                                typeConstraint(namedType("int", nullable = ionBool(false))))),
-                        nullable = ionBool(false)))
+                                typeConstraint(namedType("int", nullable = ionBool(false)))
+                            )
+                        ),
+                        nullable = ionBool(false)
+                    )
+                )
             },
             // all_of - single named type reference
             ConstraintTestCase("all_of: [int]") {
@@ -240,14 +249,16 @@ class IonSchemaParserTests {
                 allOf(
                     namedType("foo", nullable = ionBool(false)),
                     namedType("bar", nullable = ionBool(false)),
-                    namedType("bat", nullable = ionBool(false)))
+                    namedType("bat", nullable = ionBool(false))
+                )
             },
             // all_of - multiple named type reference with nullables
             ConstraintTestCase("all_of: [nullable::foo, bar, nullable::bat]") {
                 allOf(
                     namedType("foo", nullable = ionBool(true)),
                     namedType("bar", nullable = ionBool(false)),
-                    namedType("bat", nullable = ionBool(true)))
+                    namedType("bat", nullable = ionBool(true))
+                )
             },
             // all_of - imported type reference
             ConstraintTestCase("all_of: [{ id: \"useless_schema\", type: test_me }]") {
@@ -284,59 +295,79 @@ class IonSchemaParserTests {
             },
             // annotations - single annotation - not ordered
             ConstraintTestCase("annotations: [foo]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"))))
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo")))
+                )
             },
             // annotations - multiple annotations - not ordered
             ConstraintTestCase("annotations: [foo, bar, bat]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))))
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat")))
+                )
             },
             // annotations - multiple annotations - optional, not ordered
             ConstraintTestCase("annotations: optional::[foo, bar, bat]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
-                            defaultOptionality = optional())
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
+                    defaultOptionality = optional()
+                )
             },
             // annotations - multiple annotations - required, not ordered
             ConstraintTestCase("annotations: required::[foo, bar, bat]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
-                            defaultOptionality = required())
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
+                    defaultOptionality = required()
+                )
             },
             // annotations - multiple annotations - ordered
             ConstraintTestCase("annotations: ordered::[foo, bar, bat]") {
-                annotations(isOrdered = ionBool(true).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))))
+                annotations(
+                    isOrdered = ionBool(true).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat")))
+                )
             },
             // annotations - multiple annotations - optional, ordered
             ConstraintTestCase("annotations: optional::ordered::[foo, bar, bat]") {
-                annotations(isOrdered = ionBool(true).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
-                            defaultOptionality = optional())
+                annotations(
+                    isOrdered = ionBool(true).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
+                    defaultOptionality = optional()
+                )
             },
             // annotations - multiple annotations - required, ordered
             ConstraintTestCase("annotations: required::ordered::[foo, bar, bat]") {
-                annotations(isOrdered = ionBool(true).asAnyElement(),
-                            annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
-                            defaultOptionality = required())
+                annotations(
+                    isOrdered = ionBool(true).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat"))),
+                    defaultOptionality = required()
+                )
             },
             // annotations - multiple annotations - mixed
             ConstraintTestCase("annotations: [foo, required::bar, bat]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                        annos = annotationList(listOf(annotation("foo"), annotation("bar", required()), annotation("bat"))))
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar", required()), annotation("bat")))
+                )
             },
             // annotations - multiple annotations - mixed
             ConstraintTestCase("annotations: required::[foo, optional::bar, bat]") {
-                annotations(isOrdered = ionBool(false).asAnyElement(),
-                        annos = annotationList(listOf(annotation("foo"), annotation("bar", optional()), annotation("bat"))),
-                        defaultOptionality = required())
+                annotations(
+                    isOrdered = ionBool(false).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar", optional()), annotation("bat"))),
+                    defaultOptionality = required()
+                )
             },
             // annotations - multiple annotations - mixed
             ConstraintTestCase("annotations: required::ordered::[foo, bar, optional::bat]") {
-                annotations(isOrdered = ionBool(true).asAnyElement(),
-                        annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat", optional()))),
-                        defaultOptionality = required())
+                annotations(
+                    isOrdered = ionBool(true).asAnyElement(),
+                    annos = annotationList(listOf(annotation("foo"), annotation("bar"), annotation("bat", optional()))),
+                    defaultOptionality = required()
+                )
             },
             // timestamp_precision - year
             ConstraintTestCase("timestamp_precision: year") {
@@ -419,7 +450,9 @@ class IonSchemaParserTests {
             ParseTypeTestCase("type::{ type: { name: foo } }") {
                 typeDefinition(
                     constraints = constraintList(
-                        typeConstraint(inlineType(typeDefinition("foo", constraintList()), nullable = ionBool(false)))))
+                        typeConstraint(inlineType(typeDefinition("foo", constraintList()), nullable = ionBool(false)))
+                    )
+                )
             },
             // element constraint - named type
             ParseTypeTestCase("type::{ element: int }") {
@@ -429,7 +462,9 @@ class IonSchemaParserTests {
             ParseTypeTestCase("type::{ element: { name: foo } }") {
                 typeDefinition(
                     constraints = constraintList(
-                        element(inlineType(typeDefinition("foo", constraintList()), nullable = ionBool(false)))))
+                        element(inlineType(typeDefinition("foo", constraintList()), nullable = ionBool(false)))
+                    )
+                )
             }
         )
     }
@@ -450,12 +485,20 @@ class IonSchemaParserTests {
             },
             // single field - inline type (note that we are indicating nullability twice... which do we obey then?)
             ParseTypeTestCase("type::{ fields: { foo: { type: int } } }") {
-                typeDefinition(null, constraintList(
-                    fields(
-                        field("foo",
-                            inlineType(
-                                typeDefinition(null, constraintList(typeConstraint(namedType("int", nullable = ionBool(false))))),
-                                nullable = ionBool(false))))))
+                typeDefinition(
+                    null,
+                    constraintList(
+                        fields(
+                            field(
+                                "foo",
+                                inlineType(
+                                    typeDefinition(null, constraintList(typeConstraint(namedType("int", nullable = ionBool(false))))),
+                                    nullable = ionBool(false)
+                                )
+                            )
+                        )
+                    )
+                )
             },
             // single field - inline type nullable.
             ParseTypeTestCase("type::{ fields: { foo: nullable::int } }") {
@@ -464,17 +507,19 @@ class IonSchemaParserTests {
 
             // multiple fields - named types
             ParseTypeTestCase("type::{ fields: { foo: int, bar: nullable::string, bat: timestamp } }") {
-                typeDefinition(null,
+                typeDefinition(
+                    null,
                     constraintList(
                         fields(
                             field("foo", namedType("int", nullable = ionBool(false))),
                             field("bar", namedType("string", nullable = ionBool(true))),
                             field("bat", namedType("timestamp", nullable = ionBool(false)))
-                        )))
-
+                        )
+                    )
+                )
             }
-            //TODO: type with open content
-            //TODO: inline imports
+            // TODO: type with open content
+            // TODO: inline imports
         )
     }
 
@@ -539,7 +584,8 @@ class IonSchemaParserTests {
             ParseSchemaTestCase("type::{ name: foo } type::{ name: bar }") {
                 schema(
                     typeStatement(typeDefinition("foo", constraintList())),
-                    typeStatement(typeDefinition("bar", constraintList())))
+                    typeStatement(typeDefinition("bar", constraintList()))
+                )
             },
             // with open content only
             ParseSchemaTestCase("a b c 1 2 3") {
@@ -549,7 +595,8 @@ class IonSchemaParserTests {
                     contentStatement(ionSymbol("c")),
                     contentStatement(ionInt(1)),
                     contentStatement(ionInt(2)),
-                    contentStatement(ionInt(3)))
+                    contentStatement(ionInt(3))
+                )
             },
             // mixed open content and types
             ParseSchemaTestCase("a type::{ name: foo } b type::{ name: bar } c") {
@@ -558,49 +605,57 @@ class IonSchemaParserTests {
                     typeStatement(typeDefinition("foo", constraintList())),
                     contentStatement(ionSymbol("b")),
                     typeStatement(typeDefinition("bar", constraintList())),
-                    contentStatement(ionSymbol("c")))
+                    contentStatement(ionSymbol("c"))
+                )
             },
             // with header/footer and no fields
             ParseSchemaTestCase("schema_header::{  } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList()),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             },
             // with header/footer with open content.
             ParseSchemaTestCase("schema_header::{ blee: foo } schema_footer::{ blar: bat }") {
                 schema(
                     headerStatement(openFieldList(openField("blee", ionSymbol("foo")))),
-                    footerStatement(openFieldList(openField("blar", ionSymbol("bat")))))
+                    footerStatement(openFieldList(openField("blar", ionSymbol("bat"))))
+                )
             },
             // with header with empty imports
             ParseSchemaTestCase("schema_header::{ imports: [] } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList(), importList()),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             },
             // with header and footer with imports and single import (id only)
             ParseSchemaTestCase("schema_header::{ imports: [{id: foo}] } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList(), importList(import("foo"))),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             },
             // with header and footer with imports and single import (id and type)
             ParseSchemaTestCase("schema_header::{ imports: [{id: foo, type: bar}] } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList(), importList(import("foo", "bar"))),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             },
             // with header and footer with imports and single import (id, type and as alias)
             ParseSchemaTestCase("schema_header::{ imports: [{id: foo, type: bar, as: bat}] } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList(), importList(import("foo", "bar", "bat"))),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             },
             // with header and footer multiple imports
             ParseSchemaTestCase("schema_header::{ imports: [{id: foo}, {id: bar}, {id: bat}] } schema_footer::{ }") {
                 schema(
                     headerStatement(openFieldList(), importList(import("foo"), import("bar"), import("bat"))),
-                    footerStatement(openFieldList()))
+                    footerStatement(openFieldList())
+                )
             }
         )
     }
