@@ -14,7 +14,7 @@ internal class StructElementFieldExtractor(val struct: StructElement) {
 
     fun <T> extractOptional(fieldName: String, process: (AnyElement) -> T): T? {
         val matchingFields = remainingFields.filter { it.name == fieldName }
-        return when(matchingFields.size) {
+        return when (matchingFields.size) {
             0 -> null
             1 -> {
                 val field = matchingFields.first()
@@ -36,12 +36,11 @@ internal class StructElementFieldExtractor(val struct: StructElement) {
     }
 }
 
-
 internal fun <T> extractAllFields(struct: StructElement, block: StructElementFieldExtractor.() -> T): T {
     val extractor = StructElementFieldExtractor(struct)
     val extracted = extractor.block()
 
-    if(extractor.fieldsRemainingCount > 0) {
+    if (extractor.fieldsRemainingCount > 0) {
         val unexpectedField = extractor.extractRemainingFields().first()
         parseError(unexpectedField.value, Error.UnexpectedField(unexpectedField.name))
     }

@@ -60,7 +60,7 @@ private object IonSchemaModelValidator : IonSchemaModel.Visitor() {
 }
 
 private fun requireBooleanType(elem: IonElement, component: String) {
-    if(elem.type != ElementType.BOOL) {
+    if (elem.type != ElementType.BOOL) {
         modelValidationError(component, elem.type, listOf(ElementType.BOOL))
     }
 }

@@ -47,5 +47,3 @@ internal fun validateNumberRange(range: IonSchemaModel.NumberRange) =
  */
 internal fun validateIntRule(rule: IonSchemaModel.NumberRule) =
     INT_RANGE_VALIDATOR.walkNumberRule(rule)
-
-
