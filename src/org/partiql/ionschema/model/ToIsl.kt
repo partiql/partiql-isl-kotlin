@@ -9,7 +9,6 @@ import com.amazon.ionelement.api.ionListOf
 import com.amazon.ionelement.api.ionString
 import com.amazon.ionelement.api.ionStructOf
 import com.amazon.ionelement.api.ionSymbol
-import com.amazon.ionelement.api.withAnnotations
 
 private val MAX = ionSymbol("max")
 private val MIN = ionSymbol("min")

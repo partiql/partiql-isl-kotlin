@@ -10,7 +10,6 @@ import com.amazon.ionelement.api.SymbolElement
 import com.amazon.ionelement.api.TimestampElement
 import com.amazon.ionelement.api.ionBool
 import com.amazon.ionelement.api.ionSymbol
-import com.amazon.ionelement.api.withoutAnnotations
 import org.partiql.ionschema.model.IonSchemaModel
 import org.partiql.pig.runtime.SymbolPrimitive
 
@@ -328,7 +327,7 @@ internal fun parseTimestampValuesExtent(elem: AnyElement) =
             else -> parseError(elem, Error.InvalidTimestampExtent)
         }
         is TimestampElement -> if (elem.allowSingleAnnotation("exclusive")) {
-            IonSchemaModel.build { exclusiveTsValue(elem.withoutAnnotations()) }
+            IonSchemaModel.build { exclusiveTsValue((elem as TimestampElement).withoutAnnotations()) }
         } else {
             IonSchemaModel.build { inclusiveTsValue(elem) }
         }
