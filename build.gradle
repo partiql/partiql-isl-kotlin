@@ -38,16 +38,16 @@ java {
 
 kotlin {
     sourceSets {
-        main.kotlin.srcDirs = ["src", "src/org/partiql/ionschema/build/generated-src/pig/"]
+        main.kotlin.srcDirs = ["src", "build/generated/pig/main/kotlin"]
         test.kotlin.srcDirs = ["test"]
     }
 }
 
 dependencies {
     api 'com.amazon.ion:ion-java:1.8.0'
-    api 'com.amazon.ion:ion-element:0.2.0'
+    api 'com.amazon.ion:ion-element:1.0.0'
     api 'com.amazon.ion:ion-schema-kotlin:1.2.1'
-    api 'org.partiql:partiql-ir-generator-runtime:0.4.0'
+    api 'org.partiql:partiql-ir-generator-runtime:0.5.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
@@ -94,20 +94,18 @@ import org.partiql.pig.cmdline.Command
 import org.partiql.pig.cmdline.TargetLanguage
 import org.partiql.pig.errors.PigException
 
-def islDomainFile = 'isl-model.kt'
-
 task generatePigDomains {
     group = "code generation"
 
     // TODO: in the future, utilize the API created as part of this ticket:
     // https://github.com/partiql/partiql-ir-generator/issues/5
 
-    project.file("${projectDir}/src/org/partiql/ionschema/build/generated-src/pig/").mkdirs()
+    project.file("${projectDir}/build/generated/pig/main/kotlin/org/partiql/ionschema/model/").mkdirs()
 
     def typeUniverse = new File(projectDir, "src/org/partiql/ionschema/model/isl.ion")
-    def outputFile = new File(projectDir, "src/org/partiql/ionschema/build/generated-src/pig/$islDomainFile")
-    def targetLanguage = new TargetLanguage.Kotlin("org.partiql.ionschema.model")
-    def cmd = new Command.Generate(typeUniverse, outputFile, targetLanguage)
+    def outputFile = new File(projectDir, "build/generated/pig/main/kotlin/org/partiql/ionschema/model/")
+    def targetLanguage = new TargetLanguage.Kotlin("org.partiql.ionschema.model", outputFile, null)
+    def cmd = new Command.Generate(typeUniverse, targetLanguage)
 
     // TODO:
     // Tell gradle about the input and output of this task so that it only invokes pig when
@@ -127,7 +125,8 @@ compileKotlin.dependsOn generatePigDomains
 
 ktlint {
     filter {
-        exclude("**/$islDomainFile")
+        // Excludes any code in the build directory, which is assumed to be generated.
+        exclude { projectDir.toURI().relativize(it.file.toURI()).path.startsWith("build") }
     }
 }
 
