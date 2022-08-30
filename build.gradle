@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "org.partiql"
-version = "0.1.1-SNAPSHOT"
+version = "0.2.0"
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 repositories {
@@ -47,7 +47,7 @@ dependencies {
     api 'com.amazon.ion:ion-java:1.8.0'
     api 'com.amazon.ion:ion-element:1.0.0'
     api 'com.amazon.ion:ion-schema-kotlin:1.2.1'
-    api 'org.partiql:partiql-ir-generator-runtime:0.5.1'
+    api 'org.partiql:partiql-ir-generator-runtime:0.6.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
